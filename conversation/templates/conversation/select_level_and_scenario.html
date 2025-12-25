@@ -1,0 +1,102 @@
+{% extends "conversation/base.html" %}
+
+{% block title %}Select Level and Scenario{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center text-white mb-5">
+        <h1 class="display-4 fw-bold mb-3">Choose Your Path</h1>
+        <p class="lead fs-5">Select your level and a conversation scenario to start practicing</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4 p-md-5">
+                    <!-- Use a form but handle submission with JS -->
+                    <form id="start-conversation-form">
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label for="user_level" class="form-label fw-semibold">
+                                    <span class="fs-5 me-2">🎯</span>
+                                    Your Level
+                                </label>
+                                <select name="user_level" id="user_level" class="form-select form-select-lg" required>
+                                    <option value="" disabled selected>-- Choose your level --</option>
+                                    <option value="beginner">Beginner</option>
+                                    <option value="intermediate">Intermediate</option>
+                                    <option value="advanced">Advanced</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="scenario_id" class="form-label fw-semibold">
+                                    <span class="fs-5 me-2">💬</span>
+                                    Conversation Scenario
+                                </label>
+                                <select name="scenario_id" id="scenario_id" class="form-select form-select-lg" required>
+                                    <option value="" disabled selected>-- Choose a scenario --</option>
+                                    {% for scenario in scenarios %}
+                                        <option value="{{ scenario.id }}">{{ scenario.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3">
+                            Start Conversation →
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row mt-4 g-3">
+                <div class="col-md-4">
+                    <div class="card bg-white bg-opacity-10 border-white border-opacity-25 text-white text-center">
+                        <div class="card-body p-3">
+                            <div class="fs-3 mb-2">🎯</div>
+                            <h6 class="fw-bold mb-1">Personalized</h6>
+                            <small>Tailored to your level</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-white bg-opacity-10 border-white border-opacity-25 text-white text-center">
+                        <div class="card-body p-3">
+                            <div class="fs-3 mb-2">🌍</div>
+                            <h6 class="fw-bold mb-1">Real-World</h6>
+                            <small>Practical scenarios</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-white bg-opacity-10 border-white border-opacity-25 text-white text-center">
+                        <div class="card-body p-3">
+                            <div class="fs-3 mb-2">⚡</div>
+                            <h6 class="fw-bold mb-1">Interactive</h6>
+                            <small>AI-powered practice</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('start-conversation-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const level = document.getElementById('user_level').value;
+    const scenarioId = document.getElementById('scenario_id').value;
+    
+    if (!level || !scenarioId) {
+        alert("Please select both level and scenario");
+        return;
+    }
+
+    // Redirect to the chat start URL with level as query param
+    window.location.href = `/chat/${scenarioId}/start/?level=${level}`;
+});
+</script>
+{% endblock %}

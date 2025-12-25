@@ -1,0 +1,213 @@
+{% extends "conversation/base.html" %}
+
+{% block title %}Practice: {{ scenario.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 900px;">
+    <div class="text-center mb-5">
+        <h1 class="text-white display-5 fw-bold mb-3">{{ scenario.name }}</h1>
+        <p class="text-white lead">Click words to build sentences, then practice in conversation!</p>
+    </div>
+
+    <!-- Vocabulary Card -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-body p-4">
+            <h4 class="mb-3">📚 Your Vocabulary</h4>
+            <p class="text-muted">Click any phrase to hear it pronounced:</p>
+            
+            <div class="row g-3">
+                {% for spanish, english in vocab.items %}
+                <div class="col-md-6">
+                    <div class="vocab-item p-3 bg-light rounded border" onclick="speak('{{ spanish }}')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="text-primary d-block">{{ spanish }}</strong>
+                                <small class="text-muted">{{ english }}</small>
+                            </div>
+                            <span class="text-primary">🔊</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Practice Card -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-body p-4">
+            <h4 class="mb-3">✍️ Build a Sentence</h4>
+            <p class="text-muted">Click words below to build your sentence:</p>
+            
+            <!-- Sentence Builder Area -->
+            <div class="mb-4">
+                <div id="sentence-display" class="p-4 bg-light rounded border border-2 border-primary min-height-100 text-center">
+                    <span class="text-muted">Click words below to start building...</span>
+                </div>
+                <div class="mt-2 d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearSentence()">
+                        Clear
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="removeLastWord()">
+                        ← Remove Last
+                    </button>
+                    <button class="btn btn-sm btn-primary" onclick="speakSentence()">
+                        🔊 Hear It
+                    </button>
+                </div>
+            </div>
+
+            <!-- Word Bank -->
+            <div class="mb-3">
+                <strong class="d-block mb-2">Word Bank:</strong>
+                <div class="d-flex flex-wrap gap-2" id="word-bank">
+                    {% for spanish, english in vocab.items %}
+                    <button class="btn btn-outline-primary word-btn" 
+                            onclick="addWord('{{ spanish }}')"
+                            data-translation="{{ english }}">
+                        {{ spanish }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>💡 Tips:</strong> Try combinations like "Buenos días" + "¿Cómo estás?" or "Gracias" + "por favor"
+            </div>
+        </div>
+    </div>
+
+    <!-- Example Sentences -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-body p-4">
+            <h4 class="mb-3">📖 Example Sentences</h4>
+            {% if example_sentences %}
+            <div class="list-group">
+                {% for example in example_sentences %}
+                <div class="list-group-item" onclick="speak('{{ example.spanish }}')">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="d-block">{{ example.spanish }}</strong>
+                            <small class="text-muted">{{ example.english }}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="copySentence('{{ example.spanish }}'); event.stopPropagation();">
+                            Copy to Builder
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">Build your own sentences using the words above!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Ready for Conversation Card -->
+<div class="card bg-success text-white shadow-lg">
+    <div class="card-body text-center p-4">
+        <h4 class="mb-3">Ready to practice in a real conversation?</h4>
+        {% if scenario %}
+            <a href="{% url 'start_chat' scenario.id %}?level=beginner" 
+               class="btn btn-light btn-lg px-5">
+                Start Conversation →
+            </a>
+        {% else %}
+            <p class="text-white">Scenario not available. Please select a scenario first.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+
+        </div>
+    </div>
+</div>
+
+<style>
+.vocab-item {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.vocab-item:hover {
+    background-color: #e7f3ff !important;
+    border-color: #0d6efd !important;
+}
+
+.word-btn {
+    transition: all 0.2s;
+}
+
+.word-btn:active {
+    transform: scale(0.95);
+}
+
+.min-height-100 {
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#sentence-display.has-words {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #212529;
+}
+</style>
+
+<script>
+let currentSentence = [];
+
+function speak(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.8;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+function addWord(word) {
+    currentSentence.push(word);
+    updateDisplay();
+}
+
+function removeLastWord() {
+    currentSentence.pop();
+    updateDisplay();
+}
+
+function clearSentence() {
+    currentSentence = [];
+    updateDisplay();
+}
+
+function copySentence(sentence) {
+    currentSentence = sentence.split(' ');
+    updateDisplay();
+    speak(sentence);
+}
+
+function updateDisplay() {
+    const display = document.getElementById('sentence-display');
+    
+    if (currentSentence.length === 0) {
+        display.innerHTML = '<span class="text-muted">Click words below to start building...</span>';
+        display.classList.remove('has-words');
+    } else {
+        display.textContent = currentSentence.join(' ');
+        display.classList.add('has-words');
+    }
+}
+
+function speakSentence() {
+    if (currentSentence.length > 0) {
+        speak(currentSentence.join(' '));
+    }
+}
+</script>
+{% endblock %}

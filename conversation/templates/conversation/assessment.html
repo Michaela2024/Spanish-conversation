@@ -1,0 +1,179 @@
+{% extends "conversation/base.html" %}
+
+{% block title %}Conversation Assessment{% endblock %}
+
+{% block nav_links %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'select_level_and_scenario' %}">Start New Conversation</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'index' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 1000px;">
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <h1 class="display-4">🎉 Conversation Complete!</h1>
+        <p class="lead text-muted">{{ scenario.name }} - {{ user_level|capfirst }} Level</p>
+        <div class="badge bg-primary fs-5 px-4 py-2">
+            {{ num_exchanges }} Exchange{{ num_exchanges|pluralize }}
+        </div>
+    </div>
+
+    <!-- Assessment Card -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">📊 Your Performance Assessment</h3>
+        </div>
+        <div class="card-body">
+            
+            <!-- Vocabulary -->
+            {% if assessment.vocabulary %}
+            <div class="mb-4">
+                <h5 class="text-primary">
+                    <i class="bi bi-book"></i> Vocabulary Usage
+                </h5>
+                <p class="ms-3">{{ assessment.vocabulary }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Grammar -->
+            {% if assessment.grammar %}
+            <div class="mb-4">
+                <h5 class="text-primary">
+                    <i class="bi bi-check2-circle"></i> Grammar Accuracy
+                </h5>
+                <p class="ms-3">{{ assessment.grammar }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Fluency -->
+            {% if assessment.fluency %}
+            <div class="mb-4">
+                <h5 class="text-primary">
+                    <i class="bi bi-chat-dots"></i> Conversation Fluency
+                </h5>
+                <p class="ms-3">{{ assessment.fluency }}</p>
+            </div>
+            {% endif %}
+
+            <hr class="my-4">
+
+            <!-- Strengths -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-success bg-opacity-10 border-success h-100">
+                        <div class="card-body">
+                            <h5 class="text-success mb-3">
+                                <i class="bi bi-star-fill"></i> Strengths
+                            </h5>
+                            {% if assessment.strengths %}
+                            <ul class="list-unstyled">
+                                {% for strength in assessment.strengths %}
+                                <li class="mb-2">
+                                    <i class="bi bi-check-circle-fill text-success"></i> {{ strength }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted">Keep practicing to identify your strengths!</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Areas for Improvement -->
+                <div class="col-md-6">
+                    <div class="card bg-warning bg-opacity-10 border-warning h-100">
+                        <div class="card-body">
+                            <h5 class="text-warning mb-3">
+                                <i class="bi bi-lightbulb-fill"></i> Areas to Improve
+                            </h5>
+                            {% if assessment.improvements %}
+                            <ul class="list-unstyled">
+                                {% for improvement in assessment.improvements %}
+                                <li class="mb-2">
+                                    <i class="bi bi-arrow-up-circle-fill text-warning"></i> {{ improvement }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted">Great work! Keep challenging yourself.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overall Assessment -->
+            {% if assessment.overall %}
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">
+                    <i class="bi bi-trophy-fill"></i> Overall Assessment
+                </h5>
+                <p class="mb-0">{{ assessment.overall }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Next Steps -->
+            {% if assessment.next_steps %}
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="text-primary mb-3">
+                        <i class="bi bi-signpost-2-fill"></i> Recommended Next Steps
+                    </h5>
+                    <p class="mb-0">{{ assessment.next_steps }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Conversation Review (Collapsible) -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <button class="btn btn-link text-decoration-none w-100 text-start" type="button" 
+                        data-bs-toggle="collapse" data-bs-target="#conversationReview">
+                    <i class="bi bi-chat-square-text"></i> Review Full Conversation
+                    <i class="bi bi-chevron-down float-end"></i>
+                </button>
+            </h5>
+        </div>
+        <div id="conversationReview" class="collapse">
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                {% for msg in conversation_history %}
+                    {% if msg.role == 'ai' %}
+                    <div class="d-flex mb-3">
+                        <div class="bg-light rounded-3 p-3" style="max-width: 75%;">
+                            <small class="text-muted fw-semibold d-block mb-1">AI</small>
+                            <div>{{ msg.content }}</div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex mb-3 justify-content-end">
+                        <div class="rounded-3 p-3 text-white" style="max-width: 75%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <small class="fw-semibold d-block mb-1 opacity-75">You</small>
+                            <div>{{ msg.content }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center">
+        <a href="{% url 'select_level_and_scenario' %}" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-arrow-repeat"></i> Start Another Conversation
+        </a>
+        <a href="{% url 'index' %}" class="btn btn-outline-secondary btn-lg px-5 ms-3">
+            <i class="bi bi-house-door"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

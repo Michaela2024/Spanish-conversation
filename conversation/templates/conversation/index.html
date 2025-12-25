@@ -1,0 +1,136 @@
+{% extends "conversation/base.html" %}
+
+{% block title %}Spanish Learning Hub{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Hero Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-3 fw-bold mb-3">🌟 Learn Spanish Naturally</h1>
+        <p class="lead text-muted mb-4">
+            Practice real conversations and master key phrases at your own pace
+        </p>
+    </div>
+
+    <!-- Learning Paths -->
+    <div class="row g-4 mb-5">
+        <!-- Phrase Practice -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-lg border-0">
+                <div class="card-body p-5 text-center">
+                    <div class="display-1 mb-4">📚</div>
+                    <h3 class="card-title mb-3">Phrase Practice</h3>
+                    <p class="card-text text-muted mb-4">
+                        Perfect for beginners! Learn key phrases with color-coded grammar tags. 
+                        See how sentences are built before jumping into conversations.
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> 
+                            Structured learning
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> 
+                            Grammar visualization
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> 
+                            Audio pronunciation
+                        </li>
+                    </ul>
+                    <a href="{% url 'phrase_practice' %}" class="btn btn-primary btn-lg w-100">
+                        Start Phrase Practice
+                    </a>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Beginner Friendly</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversation Practice -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-lg border-0">
+                <div class="card-body p-5 text-center">
+                    <div class="display-1 mb-4">💬</div>
+                    <h3 class="card-title mb-3">Conversation Practice</h3>
+                    <p class="card-text text-muted mb-4">
+                        Have real conversations with AI in different scenarios. 
+                        Get instant feedback and improve your fluency naturally.
+                    </p>
+                    <ul class="list-unstyled text-start mb-4">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> 
+                            Real-world scenarios
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> 
+                            Instant feedback
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success"></i> 
+                            Performance assessment
+                        </li>
+                    </ul>
+                    <a href="{% url 'select_level_and_scenario' %}" class="btn btn-success btn-lg w-100">
+                        Start Conversation
+                    </a>
+                    <div class="mt-3">
+                        <span class="badge bg-primary">All Levels</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Learning Path Suggestion -->
+    <div class="card bg-light border-0 mb-5">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-2">
+                        <i class="bi bi-lightbulb-fill text-warning"></i> 
+                        Recommended Learning Path
+                    </h5>
+                    <p class="mb-0 text-muted">
+                        <strong>New to Spanish?</strong> Start with Phrase Practice to learn key expressions, 
+                        then move to Conversation Practice when you're ready to use them naturally!
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <span class="badge bg-primary me-2">1. Phrases</span>
+                        <i class="bi bi-arrow-right"></i>
+                        <span class="badge bg-success ms-2">2. Conversation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="p-4">
+                <i class="bi bi-translate display-4 text-primary mb-3"></i>
+                <h5>Natural Learning</h5>
+                <p class="text-muted">Learn by doing, just like you learned your first language</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4">
+                <i class="bi bi-chat-dots display-4 text-success mb-3"></i>
+                <h5>Real Scenarios</h5>
+                <p class="text-muted">Practice situations you'll actually encounter</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-4">
+                <i class="bi bi-graph-up display-4 text-warning mb-3"></i>
+                <h5>Track Progress</h5>
+                <p class="text-muted">Get detailed feedback and see your improvement</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

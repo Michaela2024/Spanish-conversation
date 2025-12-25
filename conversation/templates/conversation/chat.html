@@ -1,0 +1,221 @@
+{% extends "conversation/base.html" %}
+
+{% block title %}Spanish Conversation Practice{% endblock %}
+
+{% block nav_links %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'select_level_and_scenario' %}">← Change Scenario</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'index' %}">Home</a>
+</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-4" style="max-width: 1400px;">
+    <!-- Scenario Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex justify-content-between align-items-start">
+            <div>
+                <h2 class="mb-1">{{ scenario.name }}</h2>
+                {% if user_level %}
+                <p class="text-muted mb-0">
+                    Level: <strong>{{ user_level|capfirst }}</strong>
+                </p>
+                {% endif %}
+            </div>
+            <!-- End Conversation Button -->
+            <form method="post" action="{% url 'end_conversation' scenario_id=scenario.id %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-outline-danger btn-sm"
+                        onclick="return confirm('Are you sure you want to end this conversation?');">
+                    End conversation
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content: Vocab (left) + Chat (right) -->
+    <div class="row g-4">
+        
+        <!-- Vocabulary Sidebar (left side, only for beginners) -->
+        {% if vocab %}
+        <div class="col-lg-3">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📚 Vocabulary</h5>
+                    <small>Click to insert</small>
+                </div>
+                <div class="card-body p-3" style="max-height: 80vh; overflow-y: auto;">
+                    <div class="row g-2">
+                        {% for phrase, translation in vocab.items %}
+                        <div class="col-6">
+                            <div class="vocab-item p-2 bg-light rounded border border-primary small" 
+                                 style="cursor: pointer; transition: all 0.2s;"
+                                 onclick="insertText('{{ phrase }}')">
+                                <div class="text-primary fw-bold" style="font-size: 0.85rem;">{{ phrase }}</div>
+                                <div class="text-muted" style="font-size: 0.7rem;">{{ translation }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Chat Area (right side) -->
+        <div class="{% if vocab %}col-lg-9{% else %}col-12{% endif %}">
+            <div class="card shadow-lg">
+                <!-- Messages -->
+                <div class="card-body p-4" style="min-height: 500px; max-height: 65vh; overflow-y: auto;" id="messages">
+                    {% if conversation_history %}
+                        {% for msg in conversation_history %}
+                            {% if msg.role == 'ai' %}
+                            <div class="d-flex mb-3">
+                                <div class="bg-light rounded-3 p-3 shadow-sm" style="max-width: 70%;">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <small class="text-muted fw-semibold">{{ scenario.role|default:"AI" }}</small>
+                                        <button type="button" class="btn btn-sm btn-link text-primary p-0 ms-2 speaker-btn" 
+                                                style="font-size: 1.2rem; text-decoration: none; line-height: 1;"
+                                                onclick="speak('{{ msg.content|escapejs }}')">🔊</button>
+                                    </div>
+                                    <div class="message-text">{{ msg.content }}</div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="d-flex mb-3 justify-content-end">
+                                <div class="rounded-3 p-3 text-white shadow-sm" style="max-width: 70%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <small class="fw-semibold d-block mb-2 opacity-75">You</small>
+                                    <div>{{ msg.content }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Feedback -->
+                {% if feedback %}
+                <div class="alert alert-warning mx-4 mb-3">
+                    <strong>💡 Feedback:</strong> {{ feedback }}
+                </div>
+                {% endif %}
+
+                <!-- Input Area -->
+                <div class="card-footer bg-white border-top p-4">
+                    <!-- Accent Buttons -->
+                    <div class="mb-3 d-flex gap-2 flex-wrap">
+                        <small class="text-muted me-2">Special characters:</small>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="á">á</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="é">é</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="í">í</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="ó">ó</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="ú">ú</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="ñ">ñ</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="ü">ü</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="¿">¿</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary accent-btn" data-char="¡">¡</button>
+                    </div>
+
+                    <form method="post" action="{% url 'continue_chat' scenario_id=scenario.id %}" class="d-flex gap-3">
+                        {% csrf_token %}
+                        <input type="text" name="user_message" id="user-input" class="form-control form-control-lg shadow-sm" 
+                               placeholder="Type your message in Spanish..." required autocomplete="off">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Keep messages scrolled to bottom
+function scrollMessagesToBottom() {
+    const messagesDiv = document.getElementById('messages');
+    if (messagesDiv) {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+}
+
+// Insert vocab into input field when clicked
+function insertText(text) {
+    const input = document.getElementById('user-input');
+    const currentValue = input.value;
+    const cursorPos = input.selectionStart;
+    
+    const prefix = (currentValue && !currentValue.endsWith(' ')) ? ' ' : '';
+    
+    input.value = currentValue.substring(0, cursorPos) + prefix + text + ' ' + currentValue.substring(cursorPos);
+    input.focus();
+    
+    const newPos = cursorPos + prefix.length + text.length + 1;
+    input.setSelectionRange(newPos, newPos);
+}
+
+// Scroll messages on page load
+window.addEventListener('load', function() {
+    scrollMessagesToBottom();
+    document.getElementById('user-input').focus();
+});
+
+// Accent button functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const inputField = document.getElementById('user-input');
+    const accentButtons = document.querySelectorAll('.accent-btn');
+    
+    accentButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const char = this.getAttribute('data-char');
+            const startPos = inputField.selectionStart;
+            const endPos = inputField.selectionEnd;
+            const currentValue = inputField.value;
+            
+            inputField.value = currentValue.substring(0, startPos) + char + currentValue.substring(endPos);
+            
+            inputField.focus();
+            inputField.setSelectionRange(startPos + 1, startPos + 1);
+        });
+    });
+});
+
+// Hover effect for vocab items
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.vocab-item').forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#e7f3ff';
+            this.style.transform = 'scale(1.02)';
+        });
+        item.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+
+// Text-to-Speech function
+function speak(text, lang = 'es-ES') {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang;
+        utterance.rate = 0.85;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// Auto-speak last AI message on page load
+window.addEventListener('load', function() {
+    const messageTexts = document.querySelectorAll('.message-text');
+    if (messageTexts.length > 0) {
+        const lastMessage = messageTexts[messageTexts.length - 1];
+        const text = lastMessage.textContent.trim();
+        setTimeout(function() {
+            speak(text);
+        }, 500);
+    }
+});
+</script>
+{% endblock %}
