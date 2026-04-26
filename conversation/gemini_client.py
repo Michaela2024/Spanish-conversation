@@ -14,7 +14,9 @@ class ConversationAI:
             api_key = "TEST_KEY"
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-3.1-flash-lite")
+        self.model = genai.GenerativeModel("gemini-2.5"
+        ""
+        "-flash-lite")
 
     def start_conversation(self, scenario, user_level):
         prompt = f"""
