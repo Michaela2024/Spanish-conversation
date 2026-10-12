@@ -24,10 +24,6 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 if not GOOGLE_API_KEY:
     raise RuntimeError("GOOGLE_API_KEY not loaded from .env in Django settings")
 
-print(f"[Django settings] GOOGLE_API_KEY prefix: {GOOGLE_API_KEY[:15]}...")
-
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/

@@ -5,3 +5,16 @@ __pycache__/
 db.sqlite3
 venv/
 *.log
+
+# Python virtual environment
+.venv/
+
+# API keys and local configuration
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local database
+db.sqlite3
